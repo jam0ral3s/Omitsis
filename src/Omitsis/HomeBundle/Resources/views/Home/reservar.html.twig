@@ -1,0 +1,217 @@
+{% extends 'HomeBundle::layout.html.twig' %}
+
+{% block title %}Reservar- Omitsis{% endblock %}
+
+{% block css %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('bundles/home/css/uniform.default.css') }}"/>
+    <link rel="stylesheet" href="{{ asset('bundles/home/css/jquery-ui-1.9.2.custom.min.css') }}"/>
+{% endblock %}
+
+{% block content_header '' %}
+
+{% block content %}
+    <h1>Reservar</h1>
+
+    <form id="formReserva" name="formReserva" method="post" {{ form_enctype(formulario) }}  novalidate>
+        {{ form_errors(formulario) }}
+
+        <div class="formRow">
+            <div><label>*{{ form_label(formulario.customer) }}:</label></div>
+            <div>
+                {{ form_widget(formulario.customer, { 'attr': {
+                'accesskey' : 'n',
+                'tabindex' : 2,
+                'class' : ''
+                } }) }}
+            </div>
+            <label class="error"> {{ form_errors(formulario.customer) }} </label>
+        </div>
+
+
+        <div class="formRow">
+            <div><label>*{{ form_label(formulario.hotel) }}:</label></div>
+            <div>
+                {{ form_widget(formulario.hotel, { 'attr': {
+                'accesskey' : 'n',
+                'tabindex' : 2,
+                'class' : ''
+                } }) }}
+            </div>
+            <label class="error"> {{ form_errors(formulario.hotel) }} </label>
+        </div>
+
+        <div class="formRow" id="roomDiv">
+            <div><label>*{{ form_label(formulario.room) }}:</label></div>
+            <div>
+                <select class='select' style='width: 225px;' id='{{formulario.room.vars.id }}'  value='{{ formulario.room.vars.value }}' name='{{formulario.name ~ '[' ~ formulario.room.name ~ ']' }}' >
+                </select>
+            </div>
+            <label class="error"> {{ form_errors(formulario.room) }} </label>
+        </div>
+
+        <div class="formRow dateBooking">
+            <div><label>*{{ form_label(formulario.checkIn) }}:</label></div>
+            <div>
+                {{ form_widget(formulario.checkIn, { 'attr': {
+                'accesskey' : 'n',
+                'tabindex' : 2,
+                'class' : 'required'
+                } }) }}
+            </div>
+            <label class="error"> {{ form_errors(formulario.checkIn) }} </label>
+        </div>
+
+        <div class="formRow dateBooking">
+            <div><label>*{{ form_label(formulario.checkOut) }}:</label></div>
+            <div>
+                {{ form_widget(formulario.checkOut, { 'attr': {
+                'accesskey' : 'n',
+                'tabindex' : 2,
+                'class' : 'required'
+                } }) }}
+            </div>
+            <label class="error"> {{ form_errors(formulario.checkOut) }} </label>
+            <span style="color: #8b0000; font-size: small;">Los dias en gris estan ocupados o son fechas pasadas. No seleccionables</span>
+
+           <br/> <input type="submit" value="Reservar" />
+        </div>
+
+        {{ form_widget(formulario._token) }}
+
+    </form>
+{% endblock %}
+
+{% block scripts %}
+    {{ parent() }}
+    <script src="{{ asset('bundles/home/js/jquery.uniform.min.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('bundles/home/js/jquery-ui-1.9.2.custom.min.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('bundles/home/js/jquery.validate.js') }}" type="text/javascript"></script>
+
+
+<script type="text/javascript" charset="utf-8">
+    $(function(){
+
+
+
+        $("select, input").uniform();
+
+        // Cuando se selecciona el hotel se cargan las habitaciones
+        $( "#booking_hotel" ).on('change', function(event){
+            limpiarValores();
+            if($(this).val() != ''){
+                // Buscamos las habitaciones del hotel
+                var hotel_id = $(this).val();
+                cargaHabitaciones(hotel_id);
+            }else{
+                $('#roomDiv' ).css('display', 'none');
+                $('.dateBooking' ).css('display', 'none');
+            }
+        });
+
+        var reservas = Array();
+
+        // Cuando se selecciona una habitacion se cargan los rangos de fecha
+        $( "#booking_room" ).on('change', function(event){
+            limpiarValores();
+            if($(this).val() != ''){
+                // recogemos el identificador de la habitacion
+                var room_id = $(this).val();
+                $('.dateBooking' ).css('display', 'none');
+                $.ajax({
+                    url: '{{ path('home.habitacion_dias_ocupados')}}',
+                    type:'POST',
+                    data: { room: room_id},
+                    success: function(data){
+                        reservas = data.reservas;
+                        lanzaDatepicker();
+                        $('.dateBooking' ).css('display', 'block');
+                    },
+                    error: function(data){
+                        alert('Se ha producido un error al recuperar los días libres');
+                    },
+                    dataType: 'json'
+                });
+            }else{
+                $('.dateBooking' ).css('display', 'none');
+            }
+        });
+
+        //Funcion que carga los datepickers de CheckIn y CheckOut
+        var lanzaDatepicker = function(){
+            $( "#booking_checkIn" ).datepicker({
+                minDate: 0 ,
+                dateFormat: 'dd/mm/yy',
+                onSelect: function(date){
+                    $("#booking_checkOut").datepicker( "option", "minDate", date );
+                },
+                beforeShowDay: diasReservados
+            });
+
+            $( "#booking_checkOut" ).datepicker({ minDate: 0, dateFormat: 'dd/mm/yy', beforeShowDay: diasReservados});
+        }
+
+        var limpiarValores = function(){
+            $( "#booking_checkIn" ).val('');
+            $( "#booking_checkOut" ).val('');
+        }
+
+        // Función que carga las habitaciones del hotel
+        var cargaHabitaciones = function(hotel_id){
+            $.ajax({
+                url: '{{ path('home.rooms_hotel_select')}}',
+                type:'POST',
+                data: { hotel: hotel_id, selected: '{{ formulario.room.vars.value }}'},
+                success: function(data){
+                    $('#booking_room' ).html(data);
+                    $('#roomDiv' ).css('display', 'block');
+                    $.uniform.update('#booking_room');
+                },
+                error: function(data){
+                    alert('Se ha producido un error al recuperar las reservas');
+                },
+                dataType: 'html'
+            });
+        }
+
+        /**
+         * Funcion que marca en el calendario los dias no seleccionables
+         * @param date
+         * @return {Array}
+         */
+        function diasReservados(date){
+            var dia = date.getDate() + '-' + date.getMonth()+1 + '-' +  date.getFullYear();
+            for(var i=0;i<reservas.length;i++){
+                if(dia==reservas[i]){return [false];}
+            }
+            return [true];
+        }
+
+        {% if inicio == 'S' %}
+            $('#roomDiv' ).css('display', 'none');
+            $('.dateBooking' ).css('display', 'none');
+        {% else %}
+            //Cargamos las habitaciones del hotel
+            cargaHabitaciones($( "#booking_hotel" ).val() );
+            lanzaDatepicker();
+        {% endif %}
+    });
+
+    $(function() {
+        $("#formReserva").validate({
+            rules: {
+                booking_checkOut: "required"
+            }
+        });
+
+        $( "input[type=submit]" ).button().click(function( event ) {
+            event.preventDefault();
+            $('#formReserva' ).submit();
+        });
+    });
+
+    </script>
+
+{% endblock %}
+
+

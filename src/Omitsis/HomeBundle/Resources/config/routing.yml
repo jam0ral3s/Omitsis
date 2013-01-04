@@ -1,0 +1,23 @@
+home.inicio:
+    pattern:  /
+    defaults: { _controller: HomeBundle:Home:index }
+
+home.lista_hoteles:
+    pattern: /hoteles
+    defaults: { _controller: HomeBundle:Home:listaHoteles }
+
+home.reservas_hotel:
+    pattern: /reservasHotel/{codigoHotel}
+    defaults: { _controller: HomeBundle:Home:reservasHotel, codigoHotel: 0 }
+
+home.reservar:
+    pattern: /reservar
+    defaults: { _controller: HomeBundle:Home:reservar }
+
+home.rooms_hotel_select:
+    pattern: /habitacionesHotelSelect
+    defaults: { _controller: HomeBundle:Home:habitacionesHotelSelect }
+
+home.habitacion_dias_ocupados:
+    pattern: /habitacionDiasOcupados
+    defaults: { _controller: HomeBundle:Home:habitacionDiasOcupados}

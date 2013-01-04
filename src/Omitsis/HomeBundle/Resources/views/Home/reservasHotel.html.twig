@@ -1,0 +1,28 @@
+{% extends 'HomeBundle::layout.html.twig' %}
+
+{% block title %} Reservas Hotel - Omitsis{% endblock %}
+
+{% block css %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('bundles/home/css/jquery.dataTables.css') }}" />
+{% endblock %}
+
+{% block content_header '' %}
+
+{% block content %}
+    {% include 'HomeBundle:Home:includes/reservas_tabla.html.twig'%}
+{% endblock %}
+
+{% block scripts %}
+    {{ parent() }}
+    <script src="{{ asset('bundles/home/js/jquery.dataTables.js') }}" type="text/javascript"></script>
+
+    <script type="text/javascript" charset="utf-8">
+        $(document).ready(function() {
+            $('#tabla_reservas').dataTable();
+        } );
+    </script>
+
+{% endblock %}
+
+

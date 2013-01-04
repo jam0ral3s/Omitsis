@@ -1,0 +1,15 @@
+{% extends 'HomeBundle::layout.html.twig' %}
+
+{% block title %}Lista de Hoteles - Omitsis{% endblock %}
+
+{% block css %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('bundles/home/css/jquery.dataTables.css') }}" />
+{% endblock %}
+
+{% block content_header '' %}
+
+{% block content %}
+    <h1>Reserva realizada con exito</h1>
+{% endblock %}
+

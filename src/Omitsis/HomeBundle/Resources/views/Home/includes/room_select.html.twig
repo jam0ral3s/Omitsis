@@ -1,0 +1,6 @@
+{% if habitaciones|length > 0 %}
+    <option value=""> Seleccione una habitación </option>
+    {% for item in habitaciones|keys %}
+        <option {% if selected == item %} selected="selected" {% endif %} value="{{ item }}"> {{ habitaciones[item]}}</option>
+    {% endfor %}
+{% endif %}

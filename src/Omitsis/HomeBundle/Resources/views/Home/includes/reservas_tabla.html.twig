@@ -1,0 +1,29 @@
+
+<h1>Reservas del hotel {{ reservas[0].room.hotel.name }}</h1>
+<table id='tabla_reservas'>
+    <thead>
+    <tr>
+        <th>Habitacion</th>
+        <th>Cliente</th>
+        <th>Entrada</th>
+        <th>Salida</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% if reservas|length > 0 %}
+        {% for item in reservas %}
+            <tr>
+                <td>{{ item.room.number }}</td>
+                <td>{{ item.customer.name }}</td>
+                <td>{{ item.checkIn | date('d/m/Y') }}</td>
+                <td>{{ item.checkOut |date('d/m/Y') }}</td>
+            </tr>
+        {% endfor %}
+    {% else %}
+        <tr>
+            <td colspan="4">{{ 'globales.no_registros' | trans }}</td>
+        </tr>
+    {% endif %}
+    </tbody>
+</table>
+

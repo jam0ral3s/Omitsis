@@ -1,0 +1,16 @@
+services:
+    home.hotel_service:
+        class:  Omitsis\HomeBundle\Services\Impl\HotelServiceImpl
+        arguments: [@doctrine.orm.entity_manager,  Omitsis\HomeBundle\Entity\Hotel]
+
+    home.booking_service:
+        class:  Omitsis\HomeBundle\Services\Impl\BookingServiceImpl
+        arguments: [@doctrine.orm.entity_manager,  Omitsis\HomeBundle\Entity\Booking, , @home.room_service, @home.customer_service]
+
+    home.room_service:
+        class:  Omitsis\HomeBundle\Services\Impl\RoomServiceImpl
+        arguments: [@doctrine.orm.entity_manager,  Omitsis\HomeBundle\Entity\Room]
+
+    home.customer_service:
+        class:  Omitsis\HomeBundle\Services\Impl\CustomerServiceImpl
+        arguments: [@doctrine.orm.entity_manager,  Omitsis\HomeBundle\Entity\Customer]
